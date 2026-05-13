@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HapticLab · Registro de Sensaciones · Uniandes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f5f0e8;
+  --bg2:      #ede8dc;
+  --ink:      #1a1612;
+  --ink2:     #3d3830;
+  --ink3:     #7a7268;
+  --ink4:     #b0a898;
+  --accent:   #c0392b;
+  --accent2:  #e74c3c;
+  --accent-l: rgba(192,57,43,0.10);
+  --accent-ll:rgba(192,57,43,0.04);
+  --border:   rgba(26,22,18,0.10);
+  --border2:  rgba(26,22,18,0.06);
+  --green:    #27ae60;
+  --radius:   14px;
+  --radius-sm:8px;
+  --shadow:   0 2px 16px rgba(26,22,18,0.08), 0 1px 3px rgba(26,22,18,0.05);
+  --shadow-lg:0 24px 60px rgba(26,22,18,0.14), 0 4px 16px rgba(26,22,18,0.08);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body {
+  font-family:'DM Mono',monospace;
+  background: var(--bg);
+  color: var(--ink);
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor: crosshair;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+  opacity:0.4;
+}
+
+/* ── WAVE RINGS (background art) ── */
+.bg-rings {
+  position:fixed;
+  right:-200px;
+  top:50%;
+  transform:translateY(-50%);
+  width:700px;
+  height:700px;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.07;
+}
+.bg-rings circle {
+  fill:none;
+  stroke:var(--ink);
+  animation: ring-pulse 4s ease-in-out infinite;
+}
+.bg-rings circle:nth-child(1){r:80; animation-delay:0s;}
+.bg-rings circle:nth-child(2){r:160;animation-delay:.4s;}
+.bg-rings circle:nth-child(3){r:240;animation-delay:.8s;}
+.bg-rings circle:nth-child(4){r:320;animation-delay:1.2s;}
+.bg-rings circle:nth-child(5){r:350;animation-delay:1.6s;}
+@keyframes ring-pulse {
+  0%,100%{stroke-width:1;opacity:1}
+  50%{stroke-width:3;opacity:.4}
+}
+
+/* ── HEADER ── */
+header {
+  position:relative;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:22px 48px;
+  border-bottom:1px solid var(--border);
+}
+
+.logo {
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo-mark {
+  width:38px;
+  height:38px;
+  border:2px solid var(--ink);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+.logo-mark::after {
+  content:'';
+  position:absolute;
+  width:12px;height:12px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:haptic-beat 1.4s ease-in-out infinite;
+}
+@keyframes haptic-beat {
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.5);opacity:0.5}
+}
+
+.logo-text {
+  font-family:'DM Serif Display',serif;
+  font-size:20px;
+  letter-spacing:-0.3px;
+}
+.logo-text span{color:var(--accent)}
+
+.header-meta {
+  display:flex;
+  align-items:center;
+  gap:20px;
+  font-size:11px;
+  color:var(--ink3);
+  letter-spacing:.5px;
+}
+.live-badge {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--border);
+  padding:5px 12px;
+  border-radius:100px;
+  background:white;
+}
+.live-badge::before{
+  content:'';
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+  animation:blink 2s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── HERO ── */
+.hero {
+  position:relative;
+  z-index:1;
+  padding:72px 48px 48px;
+  max-width:680px;
+}
+
+.hero-eyebrow {
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.hero-eyebrow::before{
+  content:'';
+  width:24px;height:1px;
+  background:var(--accent);
+}
+
+.hero h1 {
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(38px,5.5vw,66px);
+  line-height:1.05;
+  letter-spacing:-1.5px;
+  margin-bottom:22px;
+  color:var(--ink);
+}
+
+.hero h1 em {
+  font-style:italic;
+  color:var(--accent);
+}
+
+.hero p {
+  font-size:13px;
+  line-height:1.85;
+  color:var(--ink3);
+  max-width:480px;
+}
+
+/* ── MAIN LAYOUT ── */
+.main-layout {
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:0;
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 48px 80px;
+}
+
+/* ── FORM CARD ── */
+.form-card {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;
+  grid-column:1/-1;
+  max-width:720px;
+}
+
+.form-progress {
+  height:3px;
+  background:var(--bg2);
+  position:relative;
+  overflow:hidden;
+}
+.form-progress-fill {
+  height:100%;
+  background:var(--accent);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+  width:25%;
+}
+
+.form-card-top {
+  padding:20px 32px;
+  border-bottom:1px solid var(--border2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--bg);
+}
+
+.step-pills {
+  display:flex;
+  gap:6px;
+}
+.pill {
+  height:6px;
+  border-radius:10px;
+  background:var(--border);
+  transition:all .3s ease;
+  cursor:default;
+}
+.pill.active{background:var(--accent);width:28px;}
+.pill.done{background:var(--ink4);width:14px;}
+.pill.idle{width:14px;}
+
+.step-label-text {
+  font-size:11px;
+  color:var(--ink3);
+  letter-spacing:.5px;
+}
+
+.form-body {
+  padding:40px 32px;
+}
+
+/* SECTIONS */
+.form-section{display:none;animation:slide-up .35s ease}
+.form-section.visible{display:block}
+@keyframes slide-up{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.section-heading {
+  font-family:'DM Serif Display',serif;
+  font-size:22px;
+  letter-spacing:-.3px;
+  margin-bottom:6px;
+  color:var(--ink);
+}
+.section-sub {
+  font-size:12px;
+  color:var(--ink3);
+  margin-bottom:30px;
+  line-height:1.6;
+}
+
+/* FIELDS */
+.field-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+.field-row.full{grid-template-columns:1fr}
+
+.field{display:flex;flex-direction:column;gap:5px}
+
+.field label {
+  font-size:10px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+
+.field input,
+.field select,
+.field textarea {
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:11px 14px;
+  color:var(--ink);
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  width:100%;
+  -webkit-appearance:none;
+}
+.field select option{background:white}
+.field input:focus,.field select:focus,.field textarea:focus {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-l);
+  background:white;
+}
+.field input.err,.field select.err{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ll)}
+.field-err{font-size:11px;color:var(--accent);display:none;margin-top:2px}
+.field-err.show{display:block}
+.field textarea{resize:vertical;min-height:80px}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink4)}
+
+/* SCALE SELECTOR */
+.scale-group {
+  margin-bottom:28px;
+}
+.scale-label {
+  font-size:10px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--ink3);
+  margin-bottom:10px;
+  display:block;
+}
+.scale-question {
+  font-size:13px;
+  color:var(--ink2);
+  margin-bottom:14px;
+  line-height:1.6;
+}
+.scale-options {
+  display:flex;
+  gap:8px;
+}
+.scale-btn {
+  flex:1;
+  aspect-ratio:1;
+  max-width:52px;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  background:var(--bg);
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink3);
+  cursor:pointer;
+  transition:all .15s ease;
+  display:flex;align-items:center;justify-content:center;
+}
+.scale-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-ll)}
+.scale-btn.selected{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:white;
+  box-shadow:0 4px 12px rgba(192,57,43,.25);
+}
+.scale-ends {
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:var(--ink4);
+  margin-top:6px;
+  letter-spacing:.3px;
+}
+
+/* PATTERN SELECTOR */
+.pattern-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.pattern-card {
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px 10px;
+  cursor:pointer;
+  transition:all .2s ease;
+  text-align:center;
+  background:var(--bg);
+  position:relative;
+}
+.pattern-card:hover{border-color:var(--accent);background:white}
+.pattern-card.selected{
+  border-color:var(--accent);
+  background:white;
+  box-shadow:0 0 0 3px var(--accent-l);
+}
+.pattern-card.selected::after{
+  content:'✓';
+  position:absolute;
+  top:6px;right:8px;
+  font-size:10px;
+  color:var(--accent);
+}
+.pattern-viz {
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  margin-bottom:8px;
+}
+.pattern-viz span {
+  display:inline-block;
+  width:5px;
+  background:var(--ink);
+  border-radius:10px;
+  transition:height .3s ease;
+}
+.pattern-viz.short span{height:6px}
+.pattern-viz.long  span{height:22px}
+.pattern-viz.mixed span:nth-child(odd){height:18px}
+.pattern-viz.mixed span:nth-child(even){height:8px}
+.pattern-viz.rapid span{height:14px;width:3px}
+.pattern-viz.slow  span{height:20px;width:8px;gap:6px}
+.pattern-viz.wave  span:nth-child(1){height:8px}
+.pattern-viz.wave  span:nth-child(2){height:14px}
+.pattern-viz.wave  span:nth-child(3){height:22px}
+.pattern-viz.wave  span:nth-child(4){height:16px}
+.pattern-viz.wave  span:nth-child(5){height:10px}
+.pattern-viz.wave  span:nth-child(6){height:6px}
+
+.pattern-name{font-size:11px;color:var(--ink2);letter-spacing:.3px}
+
+/* CHECKBOXES */
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;margin-top:14px}
+.checkbox-row input[type="checkbox"]{
+  width:16px;height:16px;
+  accent-color:var(--accent);
+  flex-shrink:0;margin-top:2px;cursor:pointer;
+}
+.checkbox-row label{font-size:12px;color:var(--ink3);cursor:pointer;line-height:1.6}
+
+/* CONSENT BOX */
+.consent-box {
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:18px;
+  margin-bottom:24px;
+  font-size:12px;
+  color:var(--ink3);
+  line-height:1.8;
+}
+.consent-box strong{color:var(--ink)}
+
+/* ERROR / BLOCKED BANNERS */
+#errBanner,#blockedBanner{
+  font-size:12px;
+  border-radius:var(--radius-sm);
+  padding:11px 16px;
+  margin-bottom:18px;
+  display:none;
+  animation:slide-up .3s ease;
+}
+#errBanner{background:var(--accent-l);color:var(--accent);border:1px solid rgba(192,57,43,.2)}
+#blockedBanner{background:var(--accent-l);color:var(--accent);border:1px solid rgba(192,57,43,.3);text-align:center}
+
+/* FORM FOOTER */
+.form-footer {
+  padding:20px 32px;
+  border-top:1px solid var(--border2);
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.btn{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.3px;
+  padding:11px 28px;
+  border-radius:var(--radius-sm);
+  border:none;cursor:pointer;
+  transition:all .2s ease;
+}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 6px 20px rgba(192,57,43,.3);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--ink3);border:1.5px solid var(--border)}
+.btn-ghost:hover{color:var(--ink);border-color:var(--ink3)}
+.btn-ghost[style*="hidden"]{visibility:hidden}
+.step-counter{margin-left:auto;font-size:11px;color:var(--ink4);letter-spacing:.5px}
+
+/* ── SUCCESS ── */
+#successState{
+  display:none;
+  text-align:center;
+  padding:64px 32px;
+  animation:slide-up .5s ease;
+}
+.success-ring{
+  width:72px;height:72px;
+  border-radius:50%;
+  border:2px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  font-size:28px;
+  color:var(--green);
+  box-shadow:0 0 32px rgba(39,174,96,.15);
+  animation:zoomIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes zoomIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:10px}
+.success-sub{font-size:12px;color:var(--ink3);line-height:1.8;max-width:380px;margin:0 auto}
+.tx-id{font-size:10px;color:var(--ink4);margin-top:20px;letter-spacing:1px}
+
+/* ── SIDEBAR INFO ── */
+.sidebar {
+  padding-left:40px;
+  padding-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.info-card {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.info-card h4{
+  font-family:'DM Serif Display',serif;
+  font-size:15px;
+  margin-bottom:10px;
+  color:var(--ink);
+}
+.info-card p{font-size:11px;color:var(--ink3);line-height:1.7}
+.info-card .tag{
+  display:inline-block;
+  font-size:10px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  color:var(--accent);
+  border:1px solid rgba(192,57,43,.2);
+  padding:3px 8px;
+  border-radius:100px;
+  margin-bottom:10px;
+  background:var(--accent-ll);
+}
+
+/* ── SPINNER ── */
+.spinner{
+  width:14px;height:14px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:inline-block;vertical-align:middle;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  padding:22px 48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--ink4);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  header{padding:16px 20px}
+  .hero{padding:48px 20px 32px}
+  .main-layout{padding:0 20px 60px;grid-template-columns:1fr}
+  .sidebar{display:none}
+  .form-body{padding:28px 20px}
+  .form-footer{padding:16px 20px;flex-wrap:wrap}
+  .field-row{grid-template-columns:1fr}
+  .pattern-grid{grid-template-columns:repeat(2,1fr)}
+  footer{flex-direction:column;gap:8px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- background rings -->
+<svg class="bg-rings" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="350" cy="350"/>
+  <circle cx="350" cy="350"/>
+  <circle cx="350" cy="350"/>
+  <circle cx="350" cy="350"/>
+  <circle cx="350" cy="350"/>
+</svg>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Haptic<span>Lab</span></div>
+  </div>
+  <div class="header-meta">
+    <div class="live-badge">Recolección activa</div>
+    <span>Universidad de los Andes</span>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-eyebrow">Investigación háptica · 2025</div>
+  <h1>¿Cómo <em>sientes</em><br>la manilla?</h1>
+  <p>Ayúdanos a entender cómo percibes los patrones táctiles del dispositivo. Tu experiencia como parte de la comunidad Uniandina es fundamental para esta investigación.</p>
+</section>
+
+<!-- ── MAIN ── -->
+<div class="main-layout">
+  <div class="form-card">
+    <div class="form-progress"><div class="form-progress-fill" id="progressFill"></div></div>
+
+    <div class="form-card-top">
+      <div class="step-pills" id="stepPills">
+        <div class="pill active" id="p1"></div>
+        <div class="pill idle"   id="p2"></div>
+        <div class="pill idle"   id="p3"></div>
+        <div class="pill idle"   id="p4"></div>
+      </div>
+      <div class="step-label-text" id="stepLabel">PASO 1 DE 4 · VERIFICACIÓN</div>
+    </div>
+
+    <div class="form-body" id="formBody">
+      <div id="errBanner"></div>
+      <div id="blockedBanner">⛔ Tu correo ha sido restringido. Contacta al equipo investigador si crees que es un error.</div>
+
+      <!-- ─ PASO 1: VERIFICACIÓN ─ -->
+      <div class="form-section visible" id="sec1">
+        <div class="section-heading">Verifica tu identidad</div>
+        <div class="section-sub">Solo estudiantes y egresados de la Universidad de los Andes pueden participar. Ingresa tu correo institucional para continuar.</div>
+
+        <div class="field-row full">
+          <div class="field">
+            <label>Correo institucional</label>
+            <input type="email" id="emailInput" placeholder="tu.nombre@uniandes.edu.co">
+            <span class="field-err" id="emailErr">Debes ingresar un correo @uniandes.edu.co válido.</span>
+          </div>
+        </div>
+
+        <div class="consent-box">
+          <strong>Tratamiento de datos personales</strong><br>
+          De conformidad con la <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong>, la Universidad de los Andes recopila los datos de este formulario con fines exclusivamente académicos e investigativos. Los datos serán almacenados de forma segura en OneDrive institucional y no serán compartidos con terceros. Tienes derecho a conocer, actualizar, rectificar y suprimir tu información personal.
+          <div class="checkbox-row">
+            <input type="checkbox" id="consentCheck">
+            <label for="consentCheck">He leído y acepto el aviso de tratamiento de datos personales.</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ PASO 2: DATOS PERSONALES Y ACADÉMICOS ─ -->
+      <div class="form-section" id="sec2">
+        <div class="section-heading">Tus datos</div>
+        <div class="section-sub">Información personal y académica para contextualizar tu experiencia.</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Nombre</label>
+            <input type="text" id="firstName" placeholder="Ej. Santiago">
+            <span class="field-err" id="firstNameErr">Campo requerido.</span>
+          </div>
+          <div class="field">
+            <label>Apellidos</label>
+            <input type="text" id="lastName" placeholder="Ej. Morales">
+            <span class="field-err" id="lastNameErr">Campo requerido.</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Teléfono / celular</label>
+            <input type="tel" id="phone" placeholder="+57 310 000 0000">
+          </div>
+          <div class="field">
+            <label>Carrera / programa</label>
+            <input type="text" id="career" placeholder="Ej. Ingeniería Biomédica">
+            <span class="field-err" id="careerErr">Campo requerido.</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Semestre actual</label>
+            <select id="semester">
+              <option value="">Seleccionar…</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+              <option>9</option><option>10</option>
+              <option>Egresado(a)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Año de grado (si aplica)</label>
+            <select id="gradYear">
+              <option value="">N/A o seleccionar…</option>
+              <script>for(let y=2025;y>=1990;y--)document.write(`<option>${y}</option>`)</script>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Facultad</label>
+            <select id="faculty">
+              <option value="">Seleccionar…</option>
+              <option>Ingeniería</option>
+              <option>Ciencias</option>
+              <option>Medicina</option>
+              <option>Administración</option>
+              <option>Economía</option>
+              <option>Derecho</option>
+              <option>Ciencias Sociales</option>
+              <option>Artes y Humanidades</option>
+              <option>Arquitectura y Diseño</option>
+              <option>Educación</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Lateralidad dominante</label>
+            <select id="handedness">
+              <option value="">Seleccionar…</option>
+              <option>Diestro(a)</option>
+              <option>Zurdo(a)</option>
+              <option>Ambidiestro(a)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─ PASO 3: SENSACIONES CUANTITATIVAS ─ -->
+      <div class="form-section" id="sec3">
+        <div class="section-heading">Percepciones de la manilla</div>
+        <div class="section-sub">Evalúa cada dimensión de tu experiencia con el dispositivo. Usa la escala del 1 al 7.</div>
+
+        <!-- Intensidad -->
+        <div class="scale-group">
+          <span class="scale-label">Intensidad percibida</span>
+          <p class="scale-question">¿Qué tan intensa sientes la vibración / estimulación de la manilla?</p>
+          <div class="scale-options" id="scale-intensity">
+            <button class="scale-btn" data-val="1" onclick="selectScale('intensity',1)">1</button>
+            <button class="scale-btn" data-val="2" onclick="selectScale('intensity',2)">2</button>
+            <button class="scale-btn" data-val="3" onclick="selectScale('intensity',3)">3</button>
+            <button class="scale-btn" data-val="4" onclick="selectScale('intensity',4)">4</button>
+            <button class="scale-btn" data-val="5" onclick="selectScale('intensity',5)">5</button>
+            <button class="scale-btn" data-val="6" onclick="selectScale('intensity',6)">6</button>
+            <button class="scale-btn" data-val="7" onclick="selectScale('intensity',7)">7</button>
+          </div>
+          <div class="scale-ends"><span>Muy débil</span><span>Muy intensa</span></div>
+        </div>
+
+        <!-- Distinción de patrones -->
+        <div class="scale-group">
+          <span class="scale-label">Distinción entre patrones</span>
+          <p class="scale-question">¿Puedes distinguir fácilmente entre los diferentes patrones de la manilla?</p>
+          <div class="scale-options" id="scale-distinction">
+            <button class="scale-btn" onclick="selectScale('distinction',1)">1</button>
+            <button class="scale-btn" onclick="selectScale('distinction',2)">2</button>
+            <button class="scale-btn" onclick="selectScale('distinction',3)">3</button>
+            <button class="scale-btn" onclick="selectScale('distinction',4)">4</button>
+            <button class="scale-btn" onclick="selectScale('distinction',5)">5</button>
+            <button class="scale-btn" onclick="selectScale('distinction',6)">6</button>
+            <button class="scale-btn" onclick="selectScale('distinction',7)">7</button>
+          </div>
+          <div class="scale-ends"><span>Muy difícil</span><span>Muy fácil</span></div>
+        </div>
+
+        <!-- Confort -->
+        <div class="scale-group">
+          <span class="scale-label">Confort físico</span>
+          <p class="scale-question">¿Qué tan cómodo(a) te resulta el uso prolongado de la manilla?</p>
+          <div class="scale-options" id="scale-comfort">
+            <button class="scale-btn" onclick="selectScale('comfort',1)">1</button>
+            <button class="scale-btn" onclick="selectScale('comfort',2)">2</button>
+            <button class="scale-btn" onclick="selectScale('comfort',3)">3</button>
+            <button class="scale-btn" onclick="selectScale('comfort',4)">4</button>
+            <button class="scale-btn" onclick="selectScale('comfort',5)">5</button>
+            <button class="scale-btn" onclick="selectScale('comfort',6)">6</button>
+            <button class="scale-btn" onclick="selectScale('comfort',7)">7</button>
+          </div>
+          <div class="scale-ends"><span>Muy incómodo</span><span>Muy cómodo</span></div>
+        </div>
+
+        <!-- Naturalidad -->
+        <div class="scale-group">
+          <span class="scale-label">Naturalidad de la señal</span>
+          <p class="scale-question">¿Qué tan natural o intuitivo te parece el lenguaje de patrones de la manilla?</p>
+          <div class="scale-options" id="scale-naturalness">
+            <button class="scale-btn" onclick="selectScale('naturalness',1)">1</button>
+            <button class="scale-btn" onclick="selectScale('naturalness',2)">2</button>
+            <button class="scale-btn" onclick="selectScale('naturalness',3)">3</button>
+            <button class="scale-btn" onclick="selectScale('naturalness',4)">4</button>
+            <button class="scale-btn" onclick="selectScale('naturalness',5)">5</button>
+            <button class="scale-btn" onclick="selectScale('naturalness',6)">6</button>
+            <button class="scale-btn" onclick="selectScale('naturalness',7)">7</button>
+          </div>
+          <div class="scale-ends"><span>Nada intuitivo</span><span>Muy intuitivo</span></div>
+        </div>
+
+        <span class="field-err" id="scaleErr" style="display:none;margin-bottom:12px;display:none">Por favor responde todas las escalas antes de continuar.</span>
+      </div>
+
+      <!-- ─ PASO 4: EXPERIENCIA CUALITATIVA ─ -->
+      <div class="form-section" id="sec4">
+        <div class="section-heading">Tu experiencia</div>
+        <div class="section-sub">Cuéntanos con más detalle cómo fue tu interacción con el dispositivo.</div>
+
+        <!-- Patrón más reconocible -->
+        <div class="scale-group" style="margin-bottom:24px">
+          <span class="scale-label">Patrón más fácil de reconocer</span>
+          <p class="scale-question" style="margin-bottom:14px">¿Cuál de los siguientes patrones identificaste con más facilidad?</p>
+          <div class="pattern-grid" id="patternGrid">
+            <div class="pattern-card" onclick="selectPattern('pulso_corto')">
+              <div class="pattern-viz short"><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="pattern-name">Pulso corto</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('pulso_largo')">
+              <div class="pattern-viz long"><span></span><span></span><span></span></div>
+              <div class="pattern-name">Pulso largo</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('alternado')">
+              <div class="pattern-viz mixed"><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="pattern-name">Alternado</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('rapido')">
+              <div class="pattern-viz rapid"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="pattern-name">Rápido</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('lento')">
+              <div class="pattern-viz slow"><span></span><span></span></div>
+              <div class="pattern-name">Lento</div>
+            </div>
+            <div class="pattern-card" onclick="selectPattern('ola')">
+              <div class="pattern-viz wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="pattern-name">En ola</div>
+            </div>
+          </div>
+          <span class="field-err" id="patternErr">Por favor selecciona un patrón.</span>
+        </div>
+
+        <!-- Confusión de patrones -->
+        <div class="field-row full" style="margin-bottom:14px">
+          <div class="field">
+            <label>¿Confundiste algún patrón con otro? ¿Cuál(es)?</label>
+            <input type="text" id="patternConfusion" placeholder="Ej. Confundí 'alternado' con 'rápido'">
+          </div>
+        </div>
+
+        <!-- Descripción libre -->
+        <div class="field-row full" style="margin-bottom:14px">
+          <div class="field">
+            <label>Describe con tus palabras qué sentiste</label>
+            <textarea id="freeDescription" placeholder="Ej. Sentí un cosquilleo suave que aumentaba de intensidad, algunas vibraciones me parecieron muy similares entre sí..."></textarea>
+          </div>
+        </div>
+
+        <!-- Mejoras -->
+        <div class="field-row full">
+          <div class="field">
+            <label>Sugerencias de mejora para la manilla (opcional)</label>
+            <textarea id="suggestions" placeholder="Ej. Me gustaría que los patrones tuvieran mayor diferencia de duración..."></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /form-body -->
+
+    <!-- SUCCESS -->
+    <div id="successState">
+      <div class="success-ring">✓</div>
+      <div class="success-title">¡Respuestas registradas!</div>
+      <p class="success-sub">Tu experiencia ha sido guardada correctamente y será procesada por el equipo investigador de acuerdo con la Ley 1581 de 2012.</p>
+      <div class="tx-id" id="txId"></div>
+    </div>
+
+    <div class="form-footer" id="formFooter">
+      <button class="btn btn-ghost" id="btnBack" onclick="prevStep()">← Atrás</button>
+      <span class="step-counter" id="stepCounter">1 / 4</span>
+      <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="info-card">
+      <div class="tag">Investigación</div>
+      <h4>¿Para qué sirven tus datos?</h4>
+      <p>Esta plataforma recolecta experiencias sensoriales para evaluar la efectividad de los patrones hápticos del prototipo. Los datos son almacenados automáticamente en OneDrive institucional vía Power Automate.</p>
+    </div>
+    <div class="info-card">
+      <div class="tag">Privacidad</div>
+      <h4>Ley 1581 de 2012</h4>
+      <p>Tus datos serán utilizados exclusivamente con fines académicos. No se compartirán con terceros. Puedes solicitar la eliminación de tu información en cualquier momento.</p>
+    </div>
+    <div class="info-card">
+      <div class="tag">Acceso restringido</div>
+      <h4>Solo comunidad Uniandina</h4>
+      <p>La plataforma valida automáticamente correos <code>@uniandes.edu.co</code>. Si tienes problemas de acceso, contacta al equipo investigador.</p>
+    </div>
+  </aside>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>© 2025 HapticLab · Universidad de los Andes</span>
+  <span>Ley 1581/2012 · Decreto 1377/2013 · Habeas Data</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+//  ⚙ CONFIGURACIÓN — edita estos valores
+// ════════════════════════════════════════
+
+// URL de tu HTTP Trigger en Power Automate:
+const WEBHOOK_URL = "";
+// Ejemplo: "https://prod-XX.westus.logic.azure.com/workflows/..."
+
+// Correos bloqueados (edita esta lista directamente):
+const BLOCKED_EMAILS = [
+  // "ejemplo@uniandes.edu.co",
+  // "otro@uniandes.edu.co",
+];
+
+// ════════════════════════════════════════
+//  ESTADO
+// ════════════════════════════════════════
+let step = 1;
+const TOTAL = 4;
+const scales = { intensity: null, distinction: null, comfort: null, naturalness: null };
+let selectedPattern = null;
+
+// ════════════════════════════════════════
+//  UI
+// ════════════════════════════════════════
+function updateUI() {
+  const labels = ['VERIFICACIÓN','DATOS PERSONALES','SENSACIONES','EXPERIENCIA'];
+  document.getElementById('stepLabel').textContent = `PASO ${step} DE ${TOTAL} · ${labels[step-1]}`;
+  document.getElementById('stepCounter').textContent = `${step} / ${TOTAL}`;
+  document.getElementById('progressFill').style.width = (step/TOTAL*100)+'%';
+
+  document.querySelectorAll('.form-section').forEach((s,i)=>{
+    s.classList.toggle('visible', i+1===step);
+  });
+
+  ['p1','p2','p3','p4'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.className = 'pill ' + (i+1<step?'done':i+1===step?'active':'idle');
+  });
+
+  document.getElementById('btnBack').style.visibility = step>1?'visible':'hidden';
+  document.getElementById('btnNext').textContent = step===TOTAL ? 'Enviar respuestas ✓' : 'Continuar →';
+  hideErr();
+}
+
+// ════════════════════════════════════════
+//  NAVEGACIÓN
+// ════════════════════════════════════════
+function nextStep(){
+  if(!validate(step)) return;
+  if(step===TOTAL){ submit(); return; }
+  step++; updateUI();
+}
+function prevStep(){ if(step>1){ step--; updateUI(); } }
+
+// ════════════════════════════════════════
+//  VALIDACIÓN
+// ════════════════════════════════════════
+function validate(s){
+  if(s===1){
+    const email = document.getElementById('emailInput').value.trim().toLowerCase();
+    const inp = document.getElementById('emailInput');
+    const err = document.getElementById('emailErr');
+    const blk = document.getElementById('blockedBanner');
+    inp.classList.remove('err'); err.classList.remove('show'); blk.style.display='none';
+    if(!email.endsWith('@uniandes.edu.co')||email.length<10){
+      inp.classList.add('err'); err.classList.add('show'); return false;
+    }
+    if(BLOCKED_EMAILS.map(e=>e.toLowerCase()).includes(email)){
+      blk.style.display='block'; return false;
+    }
+    if(!document.getElementById('consentCheck').checked){
+      showErr('Debes aceptar el tratamiento de datos para continuar.'); return false;
+    }
+  }
+  if(s===2){
+    let ok=true;
+    ok = req('firstName','firstNameErr') & ok;
+    ok = req('lastName','lastNameErr')   & ok;
+    ok = req('career','careerErr')       & ok;
+    return ok;
+  }
+  if(s===3){
+    const missing = Object.values(scales).some(v=>v===null);
+    if(missing){
+      const el = document.getElementById('scaleErr');
+      el.style.display='block';
+      setTimeout(()=>el.style.display='none',3000);
+      return false;
+    }
+  }
+  if(s===4){
+    if(!selectedPattern){
+      document.getElementById('patternErr').classList.add('show'); return false;
+    }
+  }
+  return true;
+}
+
+function req(id, errId){
+  const inp = document.getElementById(id);
+  const err = document.getElementById(errId);
+  if(!inp.value.trim()){ inp.classList.add('err'); err.classList.add('show'); return false; }
+  inp.classList.remove('err'); err.classList.remove('show'); return true;
+}
+function showErr(msg){ const b=document.getElementById('errBanner'); b.textContent='⚠ '+msg; b.style.display='block'; }
+function hideErr(){ document.getElementById('errBanner').style.display='none'; }
+
+// ════════════════════════════════════════
+//  INTERACTIVOS: ESCALAS Y PATRONES
+// ════════════════════════════════════════
+function selectScale(name, val){
+  scales[name] = val;
+  document.querySelectorAll(`#scale-${name} .scale-btn`).forEach(btn=>{
+    btn.classList.toggle('selected', parseInt(btn.dataset.val||btn.textContent)===val);
+  });
+  // fijar data-val para los que no lo tienen
+  document.querySelectorAll(`#scale-${name} .scale-btn`).forEach((btn,i)=>{
+    if(!btn.dataset.val) btn.dataset.val = i+1;
+  });
+}
+
+// Re-asignar data-val en los scale-buttons que no lo tienen
+document.querySelectorAll('.scale-btn').forEach((btn,_)=>{
+  if(!btn.dataset.val) btn.dataset.val = btn.textContent.trim();
+});
+// Reescribir onclick para pasar valor correcto
+document.querySelectorAll('#scale-distinction .scale-btn').forEach((btn,i)=>{
+  btn.onclick = ()=>selectScale('distinction',i+1); btn.dataset.val=i+1;
+});
+document.querySelectorAll('#scale-comfort .scale-btn').forEach((btn,i)=>{
+  btn.onclick = ()=>selectScale('comfort',i+1); btn.dataset.val=i+1;
+});
+document.querySelectorAll('#scale-naturalness .scale-btn').forEach((btn,i)=>{
+  btn.onclick = ()=>selectScale('naturalness',i+1); btn.dataset.val=i+1;
+});
+
+function selectPattern(name){
+  selectedPattern = name;
+  document.querySelectorAll('.pattern-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('patternErr').classList.remove('show');
+}
+
+// ════════════════════════════════════════
+//  ENVÍO
+// ════════════════════════════════════════
+async function submit(){
+  const btn = document.getElementById('btnNext');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Enviando…';
+
+  const payload = {
+    // Identificación
+    email:             document.getElementById('emailInput').value.trim().toLowerCase(),
+    // Datos personales
+    firstName:         document.getElementById('firstName').value.trim(),
+    lastName:          document.getElementById('lastName').value.trim(),
+    phone:             document.getElementById('phone').value.trim(),
+    // Datos académicos
+    career:            document.getElementById('career').value.trim(),
+    semester:          document.getElementById('semester').value,
+    gradYear:          document.getElementById('gradYear').value,
+    faculty:           document.getElementById('faculty').value,
+    handedness:        document.getElementById('handedness').value,
+    // Escalas hápticas
+    scaleIntensity:    scales.intensity,
+    scaleDistinction:  scales.distinction,
+    scaleComfort:      scales.comfort,
+    scaleNaturalness:  scales.naturalness,
+    // Experiencia cualitativa
+    patternRecognized: selectedPattern,
+    patternConfusion:  document.getElementById('patternConfusion').value.trim(),
+    freeDescription:   document.getElementById('freeDescription').value.trim(),
+    suggestions:       document.getElementById('suggestions').value.trim(),
+    // Metadata
+    timestamp:         new Date().toISOString(),
+    source:            'HapticLab v1.0'
+  };
+
+  let ok = false;
+  if(WEBHOOK_URL){
+    try{
+      await fetch(WEBHOOK_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload),
+        mode:'no-cors'
+      });
+      ok=true;
+    }catch(e){ console.error(e); }
+  } else {
+    // Sin webhook: log en consola para pruebas
+    console.log('📦 HapticLab payload:', JSON.stringify(payload,null,2));
+    ok=true;
+  }
+
+  if(ok){
+    document.getElementById('formBody').style.display='none';
+    document.getElementById('formFooter').style.display='none';
+    const ss=document.getElementById('successState');
+    ss.style.display='block';
+    document.getElementById('txId').textContent =
+      'ID · HL-'+Math.random().toString(36).substr(2,6).toUpperCase()+'-'+Date.now();
+  } else {
+    showErr('Error al enviar. Verifica la URL del webhook en el código.');
+    btn.disabled=false;
+    btn.innerHTML='Enviar respuestas ✓';
+  }
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+updateUI();
+</script>
+</body>
+</html>
